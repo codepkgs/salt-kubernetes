@@ -1,0 +1,2 @@
+include:
+  - .sls/docker-ce

@@ -1,0 +1,11 @@
+# saltstack config
+{% if pillar['resolv_search'] is defined and pillar['resolv_search'] | length != 0  %}
+search {{ pillar['resolv_search'] | join(' ')}}
+{% endif %}
+{% if pillar['resolv_domain'] is defined and pillar['resolv_domain'] | length != 0 %}
+domain {{ pillar['resolv_domain'] }}
+{% endif %}
+{% for ns in pillar['resolv_nameservers'][:3] %}
+nameserver {{ ns }}
+{% endfor %}
+options {{ salt['pillar.get']('resolv_options', 'rotate timeout:2 attempts:3') }}

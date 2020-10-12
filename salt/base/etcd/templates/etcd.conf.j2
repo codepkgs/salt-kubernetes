@@ -1,0 +1,149 @@
+{# temp variable #}
+{% set etcd_name = [] %}
+{% set etcd_host = [] %}
+{% set etcd_host_ip = [] %}
+{% set etcd_scheme = [] -%}
+
+{% set etcd_data_dir = salt['pillar.get']('etcd_data_dir', '/var/lib/etcd/defaults.etcd') -%}
+{% set etcd_initial_cluster = salt['pillar.get']('etcd_initial_cluster') -%}
+{% set etcd_initial_cluster_token = salt['pillar.get']('etcd_initial_cluster_token', 'etcd_cluster') -%}
+{% set etcd_initial_cluster_state = salt['pillar.get']('etcd_initial_cluster_state', 'new') -%}
+{% set etcd_enable_v2 = salt['pillar.get']('etcd_enable_v2', 'true') -%}
+
+{# 判断是否启用etcd集群 #}
+{% if etcd_initial_cluster.split(',') | length == 1 %}
+    {% set etcd_cluster = salt['pillar.get']('etcd_cluster', False) -%}
+{% else -%}
+    {% set etcd_cluster = salt['pillar.get']('etcd_cluster', True) -%}
+{% endif -%}
+
+{# etcd_listen_metrics_urls #}
+{% set etcd_listen_metrics_urls = salt['pillar.get']('etcd_listen_metrics_urls', '') -%}
+
+{# etcd 证书配置 #}
+{% set etcd_cert_file = '/etc/etcd/certs/etcd.pem' -%}
+{% set etcd_key_file = '/etc/etcd/certs/etcd-key.pem' -%}
+{% set etcd_trusted_ca_file = '/etc/etcd/certs/ca.pem' -%}
+{% set etcd_peer_cert_file = '/etc/etcd/certs/etcd-peer-cert.pem' -%}
+{% set etcd_peer_key_file = '/etc/etcd/certs/etcd-peer-key.pem' -%}
+{% set etcd_peer_trusted_ca_file = '/etc/etcd/certs/ca-peer.pem' -%}
+{% set etcd_client_cert_auth = salt['pillar.get']('etcd_client_cert_auth', 'true') -%}
+{% set etcd_peer_client_cert_auth = salt['pillar.get']('etcd_peer_client_cert_auth', 'true') -%}
+{% set etcd_auto_tls = salt['pillar.get']('etcd_auto_tls', 'false') -%}
+{% set etcd_peer_auto_tls = salt['pillar.get']('etcd_peer_auto_tls', 'false') -%}
+
+{%- for host in etcd_initial_cluster.split(',') %}
+    {% set temp_host_name = host.split(',')[0].split('=')[0] %}
+    {% set temp_host_scheme = host.split(',')[0].split('=')[1].split(':')[0] %}
+    {% set temp_host = host.split(',')[0].split('=')[1] %}
+    {% set temp_host_ip = host.split(',')[0].split('=')[1].split('//')[1].split(':')[0] %}
+    {% for ip in grains['fqdn_ip4'] %}
+        {%- if ip == temp_host_ip %}
+            {% do etcd_name.append(temp_host_name) %}
+            {% do etcd_scheme.append(temp_host_scheme) %}
+            {% do etcd_host.append(temp_host) %}
+            {% do etcd_host_ip.append(temp_host_ip) %}
+            {% break %}
+        {% endif -%}
+    {% endfor -%}
+{% endfor -%}
+
+{# 设置变量 #}
+{% set etcd_name = etcd_name[0] %}
+{% set etcd_scheme = etcd_scheme[0] %}
+{% set etcd_host = etcd_host[0] %}
+{% set etcd_host_ip = etcd_host_ip[0] -%}
+#[Member]
+#ETCD_CORS=""
+ETCD_DATA_DIR="{{ etcd_data_dir }}"
+#ETCD_WAL_DIR=""
+ETCD_LISTEN_PEER_URLS="{{ etcd_host }}"
+ETCD_LISTEN_CLIENT_URLS="http://localhost:2379,{{ etcd_scheme }}://{{ etcd_host_ip }}:2379"
+#ETCD_MAX_SNAPSHOTS="5"
+#ETCD_MAX_WALS="5"
+ETCD_NAME="{{ etcd_name }}"
+#ETCD_SNAPSHOT_COUNT="100000"
+#ETCD_HEARTBEAT_INTERVAL="100"
+#ETCD_ELECTION_TIMEOUT="1000"
+#ETCD_QUOTA_BACKEND_BYTES="0"
+#ETCD_MAX_REQUEST_BYTES="1572864"
+#ETCD_GRPC_KEEPALIVE_MIN_TIME="5s"
+#ETCD_GRPC_KEEPALIVE_INTERVAL="2h0m0s"
+#ETCD_GRPC_KEEPALIVE_TIMEOUT="20s"
+#
+#[Clustering]
+{% if etcd_cluster -%}
+ETCD_INITIAL_ADVERTISE_PEER_URLS="{{ etcd_host }}"
+ETCD_ADVERTISE_CLIENT_URLS="{{ etcd_scheme }}://{{ etcd_host_ip }}:2379"
+#ETCD_DISCOVERY=""
+#ETCD_DISCOVERY_FALLBACK="proxy"
+#ETCD_DISCOVERY_PROXY=""
+#ETCD_DISCOVERY_SRV=""
+ETCD_INITIAL_CLUSTER="{{ etcd_initial_cluster }}"
+ETCD_INITIAL_CLUSTER_TOKEN="{{ etcd_initial_cluster_token }}"
+ETCD_INITIAL_CLUSTER_STATE="{{ etcd_initial_cluster_state }}"
+#ETCD_STRICT_RECONFIG_CHECK="true"
+ETCD_ENABLE_V2="{{ etcd_enable_v2 }}"
+{% endif -%}
+#
+#[Proxy]
+#ETCD_PROXY="off"
+#ETCD_PROXY_FAILURE_WAIT="5000"
+#ETCD_PROXY_REFRESH_INTERVAL="30000"
+#ETCD_PROXY_DIAL_TIMEOUT="1000"
+#ETCD_PROXY_WRITE_TIMEOUT="5000"
+#ETCD_PROXY_READ_TIMEOUT="0"
+#
+#[Security]
+{% if etcd_scheme == 'https' %}
+ETCD_CERT_FILE="{{ etcd_cert_file }}"
+ETCD_KEY_FILE="{{ etcd_key_file }}"
+ETCD_CLIENT_CERT_AUTH="{{ etcd_client_cert_auth }}"
+ETCD_TRUSTED_CA_FILE="{{ etcd_trusted_ca_file }}"
+ETCD_AUTO_TLS="{{ etcd_auto_tls }}"
+{% else -%}
+#ETCD_CERT_FILE=""
+#ETCD_KEY_FILE=""
+#ETCD_CLIENT_CERT_AUTH="false"
+#ETCD_TRUSTED_CA_FILE=""
+#ETCD_AUTO_TLS="false"
+{% endif -%}
+
+{%- if etcd_cluster %}
+ETCD_PEER_CERT_FILE="{{ etcd_peer_cert_file }}"
+ETCD_PEER_KEY_FILE="{{ etcd_peer_key_file }}"
+ETCD_PEER_CLIENT_CERT_AUTH="{{ etcd_peer_client_cert_auth }}"
+ETCD_PEER_TRUSTED_CA_FILE="{{ etcd_peer_trusted_ca_file }}"
+ETCD_PEER_AUTO_TLS="{{ etcd_peer_auto_tls }}"
+{% else -%}
+#ETCD_PEER_CERT_FILE=""
+#ETCD_PEER_KEY_FILE=""
+#ETCD_PEER_CLIENT_CERT_AUTH="false"
+#ETCD_PEER_TRUSTED_CA_FILE=""
+#ETCD_PEER_AUTO_TLS="false"
+{% endif -%}
+#
+#[Logging]
+#ETCD_DEBUG="false"
+#ETCD_LOG_PACKAGE_LEVELS=""
+#ETCD_LOG_OUTPUT="default"
+#
+#[Unsafe]
+#ETCD_FORCE_NEW_CLUSTER="false"
+#
+#[Version]
+#ETCD_VERSION="false"
+#ETCD_AUTO_COMPACTION_RETENTION="0"
+#
+#[Profiling]
+#ETCD_ENABLE_PPROF="false"
+#ETCD_METRICS="basic"
+#
+#[Auth]
+#ETCD_AUTH_TOKEN="simple"
+
+{% if etcd_listen_metrics_urls %}
+ETCD_LISTEN_METRICS_URLS="{{ etcd_listen_metrics_urls }}"
+{% else -%}
+ETCD_LISTEN_METRICS_URLS="http://{{ etcd_host_ip }}:2381"
+{% endif -%}

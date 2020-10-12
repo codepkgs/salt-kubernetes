@@ -1,0 +1,12 @@
+include:
+  - .sls/vim
+  - .sls/packages
+  - .sls/services
+  - .sls/timezone
+  - .sls/ulimit
+  - .sls/repo
+  - .sls/pip
+  - .sls/swap
+  - .sls/selinux
+  - .sls/sshd
+  - .sls/sysctl

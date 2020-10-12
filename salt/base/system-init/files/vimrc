@@ -1,0 +1,41 @@
+" 四格缩进
+set expandtab
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+
+"set listchars=eol:$,tab:>-,space:c,trail:~,extends:>,precedes:<
+set listchars=tab:›\c,trail:•,extends:>,precedes:<,nbsp:.
+set list
+
+" 两格缩进
+au FileType html,xml,css,javascript,jsp,php,yaml,yml set shiftwidth=2
+au FileType html,xml,css,javascript,jsp,php,yaml,yml set tabstop=2
+au FileType html,xml,css,javascript,jsp,php,yaml,yml set softtabstop=2
+
+syntax on
+
+" 字符编码
+set encoding=utf-8
+set termencoding=utf-8
+set fileencoding=utf-8
+set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+
+" 功能设置
+set backspace=2       " 防止 backspace 失灵
+syntax enable         " 启用语法高亮
+set nu                " 启用行号显示
+set wrap              " 启用自动折行
+set linebreak         " 启用整词折行
+set hidden            " 自动隐藏buff
+set autoread          " 自动更新文件
+set nohlsearch          " 启用高亮查找
+set incsearch         " 启用增量查找
+set autoindent        " 启用自动对齐
+set smartindent       " 启用智能对齐
+set history=1000      " 保留命令历史
+set showtabline=2     " 总是显示标签栏
+set browsedir=buffer  " 文件浏览器的目录
+set scrolloff=0       " 到达边界时自动滚屏
+set pastetoggle=<F12> " 设置粘贴模式的快捷键
+set ignorecase        " 忽略大小写

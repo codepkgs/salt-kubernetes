@@ -1,0 +1,31 @@
+driftfile  /var/lib/ntp/drift
+pidfile    /var/run/ntpd.pid
+logfile    /var/log/ntp.log
+
+# Access Control Support
+restrict    default kod nomodify notrap nopeer noquery
+restrict -6 default kod nomodify notrap nopeer noquery
+restrict ::1
+restrict 127.0.0.1
+{% if pillar['ntp_restricts'] is defined and pillar['ntp_restricts'] %}
+{% for ntp_restrict in pillar['ntp_restricts']  %}
+restrict {{ ntp_restrict.network }} mask {{ ntp_restrict.netmask }} nomodify notrap noquery nopeer kod
+{% endfor %}
+{% else %}
+restrict 192.168.0.0 mask 255.255.0.0 nomodify notrap nopeer noquery
+restrict 172.16.0.0 mask 255.240.0.0 nomodify notrap nopeer noquery
+restrict 10.0.0.0 mask 255.0.0.0 nomodify notrap nopeer noquery
+{% endif %}
+
+{% if pillar['local_clock'] is defined and pillar['local_clock'] %}
+# local clock
+server 127.127.1.0
+fudge  127.127.1.0 stratum 10
+{% endif %}
+
+{% for server in pillar['ntp_servers'] %}
+server {{ server }} iburst minpoll 4 maxpoll 10
+restrict {{ server }} nomodify notrap noquery nopeer
+{% endfor %}
+
+disable monitor

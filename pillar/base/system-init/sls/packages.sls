@@ -1,0 +1,14 @@
+install_packages:
+  - gcc
+  - gcc-c++
+  - net-tools
+  - rsync
+  - htop
+  - iftop
+  - lsof
+  - tree
+  - ack
+  - tmux
+  - nmap-ncat
+  - wget
+  - python3
