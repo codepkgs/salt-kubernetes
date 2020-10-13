@@ -2,7 +2,7 @@
 
 clean() {
     rm -rf certs/* &> /dev/null
-    rm -rf etcd.sls &> /dev/null
+    rm -rf etcd.sls ../pillar/base/etcd/sls/etcd.sls &> /dev/null
     rm -rf files/ca-csr.json &> /dev/null
     rm -rf files/etcd-csr.json &> /dev/null
 }
@@ -12,6 +12,7 @@ init() {
     ca
     etcd
     python etcd_pillar.py
+    mv etcd.sls ../pillar/base/etcd/sls/ &> /dev/null
 }
 
 ca() {
