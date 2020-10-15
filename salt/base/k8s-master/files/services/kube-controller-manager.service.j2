@@ -1,0 +1,41 @@
+{% set service_cluster_ip_range = salt['pillar.get']('service_cluster_ip_range') %}
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart=/usr/bin/kube-controller-manager \
+  --cluster-name=kubernetes \
+  --controllers=*,bootstrapsigner,tokencleaner \
+  --kube-api-qps=1000 \
+  --kube-api-burst=2000 \
+  --leader-elect=true \
+  --use-service-account-credentials=true \
+  --bind-address=0.0.0.0 \
+  --secure-port=10257 \
+  --port=0 \
+  --tls-cert-file=/etc/kubernetes/certs/kube-controller-manager.pem \
+  --tls-private-key-file=/etc/kubernetes/certs/kube-controller-manager-key.pem \
+  --kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --authentication-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --authorization-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --client-ca-file=/etc/kubernetes/certs/ca.pem \
+  --root-ca-file=/etc/kubernetes/certs/ca.pem \
+  --service-account-private-key-file=/etc/kubernetes/certs/service-account.key \
+  --service-cluster-ip-range={{ service_cluster_ip_range }} \
+  --requestheader-client-ca-file=/etc/kubernetes/certs/ca.pem \
+  --cluster-signing-cert-file=/etc/kubernetes/certs/ca.pem \
+  --cluster-signing-key-file=/etc/kubernetes/certs/ca-key.pem \
+  --experimental-cluster-signing-duration=87600h \
+  --horizontal-pod-autoscaler-sync-period=10s \
+  --concurrent-service-syncs=2 \
+  --concurrent-deployment-syncs=10 \
+  --concurrent-gc-syncs=30 \
+  --node-cidr-mask-size=24 \
+  --logtostderr=true \
+  --v=2
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

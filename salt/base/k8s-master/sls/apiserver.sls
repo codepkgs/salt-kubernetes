@@ -27,4 +27,3 @@ apiserver_service:
     - watch:
       - file: apiserver_config
       - file: apiserver_service_config
-      - file: master_certs

@@ -3,7 +3,7 @@ set -e
 
 # 定义全局变量
 k8s_master_certs_dir="../salt/base/k8s-master/files/certs"
-
+vip_address="$(grep '\<vip\>' vars.ini | awk -F'=' '{print $2}' | awk '{print $1}')"
 
 clean() {
     # 删除certs目录下的所有内容
@@ -20,12 +20,17 @@ clean() {
     rm -rf files/aggregator-ca-csr.json &> /dev/null
     rm -rf files/apiserver-kubelet-client-csr.json &> /dev/null
     rm -rf files/proxy-client-csr.json &> /dev/null
+    rm -rf files/kube-controller-manager-csr.json &> /dev/null
 
     # 删除 k8s-master certs 文件
     rm -rf ${k8s_master_certs_dir}/* &> /dev/null
+
+    # 删除 kubeconfig
+    rm -rf ../salt/base/k8s-master/files/kubeconfig/* &> /dev/null
 }
 
 init() {
+    local kubeconfig_dir='../salt/base/k8s-master/files/kubeconfig/'
     # 产生csr文件
     python csr.py
 
@@ -35,9 +40,16 @@ init() {
     etcd
     gen_sa
     apiserver
+    controller_manager
     apiserver_kubelet_client
     proxy_client_metrics_server
     k8s_admin
+
+    # kubeconfig
+    controller_manager_kubeconfig
+
+    # mv kubeconfig
+    mv kube-controller-manager.kubeconfig $kubeconfig_dir/
 
     # 复制证书
     if [ ! -d ${k8s_master_certs_dir} ]; then
@@ -98,6 +110,36 @@ gen_cert_aggregator() {
     else
         echo "warning: ${cert_name} cert is exist now, if you want to generate, please use --force"
     fi
+}
+
+gen_kubeconfig() {
+    api_server=$1
+    kubeconfig_filename=$2
+    user=$3
+
+    # 1. 设置集群参数
+    kubectl config set-cluster kubernetes \
+        --certificate-authority=./certs/ca.pem \
+        --embed-certs=true \
+        --server=${api_server} \
+        --kubeconfig=${kubeconfig_filename}
+
+    # 2. 设置客户端认证参数
+    kubectl config set-credentials ${user} \
+        --embed-certs=true \
+        --client-certificate=./certs/kube-controller-manager.pem \
+        --client-key=./certs/kube-controller-manager-key.pem \
+        --kubeconfig=${kubeconfig_filename}
+
+    # 3. 设置上下文参数
+    kubectl config set-context ${user} \
+        --cluster=kubernetes \
+        --user=${user} \
+        --kubeconfig=${kubeconfig_filename}
+
+    # 4. 设置当前所使用的上下文
+    kubectl config use-context ${user} \
+        --kubeconfig=${kubeconfig_filename}
 }
 
 ca() {
@@ -165,6 +207,15 @@ apiserver() {
     gen_cert $cert_name $cert_filename $cert_csr $csr_json
 }
 
+controller_manager() {
+    local cert_name='kube-controller-manager'
+    local cert_filename='certs/kube-controller-manager.pem'
+    local cert_csr='kube-controller-manager.csr'
+    local csr_json='kube-controller-manager-csr.json'
+
+    gen_cert $cert_name $cert_filename $cert_csr $csr_json
+}
+
 apiserver_kubelet_client() {
     local cert_name='apiserver-kubelet-client'
     local cert_filename='certs/apiserver-kubelet-client.pem'
@@ -190,6 +241,11 @@ k8s_admin() {
     local csr_json='k8s-admin-csr.json'
 
     gen_cert $cert_name $cert_filename $cert_csr $csr_json
+}
+
+controller_manager_kubeconfig() {
+    local vip="https://$vip_address:6443"
+    gen_kubeconfig $vip kube-controller-manager.kubeconfig system:kube-controller-manager
 }
 
 help() {

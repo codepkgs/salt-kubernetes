@@ -103,6 +103,16 @@ k8s_admin_csr = {
     "names": []
 }
 
+controller_manager_csr = {
+    "CN": "system:kube-controller-manager",
+    "hosts": [],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": []
+}
+
 
 def generate_csr_names_field(csr):
     csr_contents = {}
@@ -197,6 +207,21 @@ def generate_k8s_admin_csr_config():
     write_csr_file(k8s_admin_csr_filename, csr)
 
 
+def generate_controller_manager_csr_config():
+    controller_manager_csr_filename = 'files/kube-controller-manager-csr.json'
+
+    config, csr = generate_csr_names_field(controller_manager_csr)
+
+    # 写入hosts字段
+    for option in config.options(master_section_name):
+        if option.startswith('master_host'):
+            host = config.get(master_section_name, option)
+            csr['hosts'].append(host)
+    csr['names'][0]['O'] = 'system:kube-controller-manager'
+
+    write_csr_file(controller_manager_csr_filename, csr)
+
+
 if __name__ == "__main__":
     generate_ca_csr_config()
     generate_aggregator_ca_csr_config()
@@ -204,3 +229,4 @@ if __name__ == "__main__":
     generate_apiserver_csr_config()
     generate_apiserver_kubelet_client_csr_config()
     generate_k8s_admin_csr_config()
+    generate_controller_manager_csr_config()
