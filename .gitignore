@@ -1,5 +1,5 @@
 .vscode
 scripts/certs/
-files/
-! files/config.json
+./scripts/files/
+! ./scripts/files/config.json
 pillar/base/etcd/sls/etcd.sls
