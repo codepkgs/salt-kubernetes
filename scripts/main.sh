@@ -37,6 +37,7 @@ init() {
     apiserver
     apiserver_kubelet_client
     proxy_client_metrics_server
+    k8s_admin
 
     # 复制证书
     if [ ! -d ${k8s_master_certs_dir} ]; then
@@ -180,6 +181,15 @@ proxy_client_metrics_server() {
     local csr_json='proxy-client-csr.json'
 
     gen_cert_aggregator $cert_name $cert_filename $cert_csr $csr_json
+}
+
+k8s_admin() {
+    local cert_name='k8s-admin'
+    local cert_filename='certs/k8s-admin.pem'
+    local cert_csr='k8s-admin.csr'
+    local csr_json='k8s-admin-csr.json'
+
+    gen_cert $cert_name $cert_filename $cert_csr $csr_json
 }
 
 help() {

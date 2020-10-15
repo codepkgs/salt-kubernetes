@@ -1,0 +1,46 @@
+{% set advertise_address = grains['fqdn_ip4'][0] %}
+{% set etcd_servers = salt['pillar.get']('etcd_servers') %}
+{% set service_cluster_ip_range = salt['pillar.get']('service_cluster_ip_range') %}
+{% set service_node_port_range = salt['pillar.get']('service_node_port_range') %}
+
+KUBE_API_ARGS="--advertise-address={{ advertise_address }} \
+               --bind-address=0.0.0.0 \
+               --secure-port=6443 \
+               --port=0 \
+               --allow-privileged=true \
+               --etcd-cafile=/etc/kubernetes/certs/ca.pem \
+               --etcd-certfile=/etc/kubernetes/certs/etcd.pem \
+               --etcd-keyfile=/etc/kubernetes/certs/etcd-key.pem \
+               --etcd-servers={{ etcd_servers }} \
+               --tls-cert-file=/etc/kubernetes/certs/kube-apiserver.pem \
+               --tls-private-key-file=/etc/kubernetes/certs/kube-apiserver-key.pem \
+               --anonymous-auth=false \
+               --client-ca-file=/etc/kubernetes/certs/ca.pem \
+               --enable-bootstrap-token-auth \
+               --service-account-key-file=/etc/kubernetes/certs/service-account.pub \
+               --authorization-mode=RBAC,Node \
+               --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \
+               --apiserver-count=3 \
+               --event-ttl=1h \
+               --enable-aggregator-routing=true \
+               --runtime-config=api/all \
+               --kubelet-https=true \
+               --kubelet-client-certificate=/etc/kubernetes/certs/apiserver-kubelet-client.pem \
+               --kubelet-client-key=/etc/kubernetes/certs/apiserver-kubelet-client-key.pem \
+               --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \
+               --service-cluster-ip-range={{ service_cluster_ip_range }} \
+               --service-node-port-range={{ service_node_port_range }} \
+               --proxy-client-cert-file=/etc/kubernetes/certs/proxy-client.pem \
+               --proxy-client-key-file=/etc/kubernetes/certs/proxy-client-key.pem \
+               --requestheader-allowed-names=aggregator \
+               --requestheader-client-ca-file=/etc/kubernetes/certs/aggregator-ca.pem \
+               --requestheader-username-headers=X-Remote-User \
+               --requestheader-group-headers=X-Remote-Group \
+               --requestheader-extra-headers-prefix=X-Remote-Extra- \
+               --audit-log-maxage=7 \
+               --audit-log-maxbackup=10 \
+               --audit-log-maxsize=100 \
+               --audit-log-path=/var/log/kubernetes/audit.log \
+               --delete-collection-workers=3 \
+               --logtostderr=true \
+               --v=2"

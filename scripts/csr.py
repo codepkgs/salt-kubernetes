@@ -93,6 +93,16 @@ proxy_client_csr = {
     "names": []
 }
 
+k8s_admin_csr = {
+    "CN": "kubernetes-admin",
+    "hosts": [],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": []
+}
+
 
 def generate_csr_names_field(csr):
     csr_contents = {}
@@ -178,9 +188,19 @@ def generate_apiserver_kubelet_client_csr_config():
     write_csr_file(apiserver_kubelet_client_csr_filename, csr)
 
 
+def generate_k8s_admin_csr_config():
+    k8s_admin_csr_filename = 'files/k8s-admin-csr.json'
+
+    config, csr = generate_csr_names_field(k8s_admin_csr)
+    csr['names'][0]['O'] = 'system:masters'
+
+    write_csr_file(k8s_admin_csr_filename, csr)
+
+
 if __name__ == "__main__":
     generate_ca_csr_config()
     generate_aggregator_ca_csr_config()
     generate_etcd_csr_config()
     generate_apiserver_csr_config()
     generate_apiserver_kubelet_client_csr_config()
+    generate_k8s_admin_csr_config()
