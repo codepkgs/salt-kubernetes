@@ -50,11 +50,11 @@ init() {
 
     # 创建目录结构
     if [ ! -d "certs/k8s-master" ]; then
-        mkdir certs/k8s-master
+        mkdir -p certs/k8s-master
     fi
 
     if [ ! -d "certs/k8s-worker" ]; then
-        mkdir certs/k8s-worker
+        mkdir -p certs/k8s-worker
     fi
 
     # 产生csr文件
