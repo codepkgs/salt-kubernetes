@@ -6,6 +6,11 @@ k8s_master_certs_dir="../salt/base/k8s-master/files/certs"
 k8s_master_kubeconfig_dir="../salt/base/k8s-master/files/kubeconfig"
 vip_address="$(grep '\<vip\>' vars.ini | awk -F'=' '{print $2}' | awk '{print $1}')"
 
+# kubelet bootstrap token
+TOKEN_PUB=$(openssl rand -hex 3)
+TOKEN_SECRET=$(openssl rand -hex 8)
+BOOTSTRAP_TOKEN="${TOKEN_PUB}.${TOKEN_SECRET}"
+
 clean() {
     # 删除certs目录下的所有内容
     rm -rf certs/* &> /dev/null
@@ -13,6 +18,7 @@ clean() {
     # 删除 etcd pillar 数据
     rm -rf etcd.sls ../pillar/base/etcd/sls/etcd.sls &> /dev/null
     rm -rf k8s-master.sls ../pillar/base/k8s-master/sls/k8s-master.sls &> /dev/null
+    rm -rf k8s-worker.sls ../pillar/base/k8s-worker/sls/k8s-worker.sls &> /dev/null
     
     # 删除 csr json 文件
     rm -rf files/ca-csr.json &> /dev/null
@@ -30,10 +36,14 @@ clean() {
     # 删除 k8s-master certs 文件
     rm -rf ${k8s_master_certs_dir}/* &> /dev/null
     rm -rf ${k8s_master_kubeconfig_dir}/* &> /dev/null
+
+    # 删除kubelet lock
+    rm -rf kubelet_bootstrap_token.lock &> /dev/null
 }
 
 init() {
-    local kubeconfig_dir='../salt/base/k8s-master/files/kubeconfig/'
+    local master_kubeconfig_dir='../salt/base/k8s-master/files/kubeconfig/'
+    local worker_kubeconfig_dir='../salt/base/k8s-worker/files/kubeconfig/'
     # 产生csr文件
     python csr.py
 
@@ -55,9 +65,9 @@ init() {
     kubeadmin_kubeconfig
 
     # mv kubeconfig
-    mv kube-controller-manager.kubeconfig $kubeconfig_dir/
-    mv kube-scheduler.kubeconfig $kubeconfig_dir/
-    mv admin.kubeconfig $kubeconfig_dir/
+    mv kube-controller-manager.kubeconfig $master_kubeconfig_dir/
+    mv kube-scheduler.kubeconfig $master_kubeconfig_dir/
+    cp admin.kubeconfig $master_kubeconfig_dir/
 
     # 复制证书
     if [ ! -d ${k8s_master_certs_dir} ]; then
@@ -72,7 +82,19 @@ init() {
 
     # 产生etcd pillar数据
     python etcd_pillar.py && mv etcd.sls ../pillar/base/etcd/sls/
-    python master_pillar.py && mv k8s-master.sls ../pillar/base/k8s-master/sls/
+    python k8s_pillar.py
+    mv k8s-master.sls ../pillar/base/k8s-master/sls/ &> /dev/null
+    mv k8s-worker.sls ../pillar/base/k8s-worker/sls/ &> /dev/null
+
+    # kubelet
+    kubelet_bootstrap_token
+    kubelet_bootstrap_kubeconfig
+
+    mv kubelet-bootstrap.kubeconfig $worker_kubeconfig_dir/
+
+    # apply kubelet-bootstrap-csr
+    kubelet_bootstrap_csr_cmd
+    kubelet_bootstrap_csr_approve_cmd
 }
 
 gen_cert() {
@@ -282,6 +304,90 @@ kubeadmin_kubeconfig() {
     local vip="https://$vip_address:6443"
     local cert_name='k8s-admin'
     gen_kubeconfig $vip $cert_name admin.kubeconfig kubernetes-admin
+}
+
+kubelet_bootstrap_token() {
+    local kubelet_bootstrap_lock='kubelet_bootstrap_token.lock'
+    if [ ! -f "${kubelet_bootstrap_lock}" ]; then
+        kubectl --kubeconfig admin.kubeconfig -n kube-system create secret generic bootstrap-token-${TOKEN_PUB} \
+            --type 'bootstrap.kubernetes.io/token' \
+            --from-literal description="kubelet-bootstrap-token" \
+            --from-literal token-id=${TOKEN_PUB} \
+            --from-literal token-secret=${TOKEN_SECRET} \
+            --from-literal usage-bootstrap-authentication=true \
+            --from-literal usage-bootstrap-signing=true
+        touch $kubelet_bootstrap_lock
+    fi
+}
+
+kubelet_bootstrap_kubeconfig() {
+    local vip="https://$vip_address:6443"
+    # 设置集群参数
+    kubectl config set-cluster kubernetes \
+        --certificate-authority=./certs/ca.pem \
+        --server=${vip} \
+        --embed-certs=true \
+        --kubeconfig=kubelet-bootstrap.kubeconfig
+
+    # 设置客户端认证参数
+    kubectl config set-credentials kubelet-bootstrap \
+        --token=${BOOTSTRAP_TOKEN} \
+        --kubeconfig=kubelet-bootstrap.kubeconfig
+
+    # 设置上下文参数
+    kubectl config set-context kubelet-bootstrap  \
+        --cluster=kubernetes \
+        --user=kubelet-bootstrap \
+        --kubeconfig=kubelet-bootstrap.kubeconfig
+}
+
+kubelet_bootstrap_csr_cmd() {
+    cat << EOF | kubectl --kubeconfig admin.kubeconfig apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubelet-bootstrap
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:node-bootstrapper
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:bootstrappers
+EOF
+}
+
+kubelet_bootstrap_csr_approve_cmd() {
+    cat << EOF | kubectl --kubeconfig admin.kubeconfig apply -f -
+# Approve all CSRs for the group "system:bootstrappers"
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: auto-approve-csrs-for-group
+subjects:
+- kind: Group
+  name: system:bootstrappers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: system:certificates.k8s.io:certificatesigningrequests:nodeclient
+  apiGroup: rbac.authorization.k8s.io
+---
+# To let a node of the group "system:nodes" renew its own credentials
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: node-client-cert-renewal
+subjects:
+- kind: Group
+  name: system:nodes
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: system:certificates.k8s.io:certificatesigningrequests:selfnodeclient
+  apiGroup: rbac.authorization.k8s.io
+EOF
 }
 
 help() {

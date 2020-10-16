@@ -1,4 +1,5 @@
 .vscode
+kubelet_bootstrap_token.lock
 scripts/certs/
 salt/base/k8s-master/files/certs/
 salt/base/k8s-master/files/kubeconfig/
@@ -7,3 +8,4 @@ scripts/admin.kubeconfig
 ! ./scripts/files/config.json
 pillar/base/etcd/sls/etcd.sls
 pillar/base/k8s-master/sls/k8s-master.sls
+pillar/base/k8s-worker/sls/k8s-worker.sls

@@ -10,7 +10,7 @@ ca_section_name = 'ca'
 csr_section_name = 'csr'
 etcd_section_name = 'etcd_cluster'
 k8s_cluster_common_secion_name = 'k8s-cluster-common'
-master_section_name = 'k8s-master'
+k8s_section_name = 'k8s'
 
 
 ca_csr = {
@@ -182,15 +182,15 @@ def generate_apiserver_csr_config():
     config, csr = generate_csr_names_field(apiserver_csr)
 
     # 写入hosts字段
-    for option in config.options(master_section_name):
+    for option in config.options(k8s_section_name):
         if option.startswith('master_host'):
-            host = config.get(master_section_name, option)
+            host = config.get(k8s_section_name, option)
             csr['hosts'].append(host)
 
     # hosts 字段增加 vip和service-cluster-ip-range 的第一个IP
-    vip = config.get(master_section_name, 'vip')
+    vip = config.get(k8s_section_name, 'vip')
     svc_ip_range = config.get(
-        master_section_name, 'service-cluster-ip-range')
+        k8s_section_name, 'service-cluster-ip-range')
     svc_first_ip = '.'.join(svc_ip_range.split('/')[0].split('.')[:3]) + '.1'
 
     csr['hosts'].append(vip)
@@ -224,9 +224,9 @@ def generate_controller_manager_csr_config():
     config, csr = generate_csr_names_field(controller_manager_csr)
 
     # 写入hosts字段
-    for option in config.options(master_section_name):
+    for option in config.options(k8s_section_name):
         if option.startswith('master_host'):
-            host = config.get(master_section_name, option)
+            host = config.get(k8s_section_name, option)
             csr['hosts'].append(host)
     csr['names'][0]['O'] = 'system:kube-controller-manager'
 
@@ -239,9 +239,9 @@ def generate_scheduler_csr_config():
     config, csr = generate_csr_names_field(scheduler_csr)
 
     # 写入hosts字段
-    for option in config.options(master_section_name):
+    for option in config.options(k8s_section_name):
         if option.startswith('master_host'):
-            host = config.get(master_section_name, option)
+            host = config.get(k8s_section_name, option)
             csr['hosts'].append(host)
     csr['names'][0]['O'] = 'system:kube-scheduler'
 
