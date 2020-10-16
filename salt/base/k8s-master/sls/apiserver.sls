@@ -24,7 +24,6 @@ apiserver_service:
     - require:
       - file: apiserver_config
       - file: apiserver_service_config
-      - service: etcd_service
     - watch:
       - file: apiserver_config
       - file: apiserver_service_config
