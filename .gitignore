@@ -7,6 +7,7 @@ salt/base/k8s-worker/files/kubeconfig/
 scripts/admin.kubeconfig
 token.txt
 scripts/files/*.json
+scripts/files/*.bak
 !scripts/files/config.json
 pillar/base/etcd/sls/etcd.sls
 pillar/base/k8s-master/sls/k8s-master.sls
