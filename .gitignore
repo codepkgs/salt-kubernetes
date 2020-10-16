@@ -6,7 +6,7 @@ salt/base/k8s-worker/files/certs/
 salt/base/k8s-worker/files/kubeconfig/
 scripts/admin.kubeconfig
 token.txt
-scripts/files
+scripts/files/
 ! scripts/files/config.json
 ! scripts/files/kube-flanne.yaml
 pillar/base/etcd/sls/etcd.sls
