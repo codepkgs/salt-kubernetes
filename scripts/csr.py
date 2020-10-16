@@ -124,6 +124,16 @@ scheduler_csr = {
     "names": []
 }
 
+kubeproxy_csr = {
+    "CN": "system:kube-proxy",
+    "hosts": [],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": []
+}
+
 
 def generate_csr_names_field(csr):
     csr_contents = {}
@@ -248,6 +258,15 @@ def generate_scheduler_csr_config():
     write_csr_file(scheduler_csr_filename, csr)
 
 
+def generate_kubeproxy_csr_config():
+    kubeproxy_csr_filename = 'files/kube-proxy-csr.json'
+
+    _, csr = generate_csr_names_field(kubeproxy_csr)
+    csr['names'][0]['O'] = 'system:kube-proxy'
+
+    write_csr_file(kubeproxy_csr_filename, csr)
+
+
 if __name__ == "__main__":
     generate_ca_csr_config()
     generate_aggregator_ca_csr_config()
@@ -257,3 +276,4 @@ if __name__ == "__main__":
     generate_k8s_admin_csr_config()
     generate_controller_manager_csr_config()
     generate_scheduler_csr_config()
+    generate_kubeproxy_csr_config()

@@ -1,4 +1,4 @@
-{% set clster_dns = salt['pillar.get']('cluster_dns') %}
+{% set cluster_dns = salt['pillar.get']('cluster_dns') %}
 {% set pod_cidr = salt['pillar.get']('pod_cidr') %}
 #https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubelet/config/v1beta1/types.go
 kind: KubeletConfiguration

@@ -54,6 +54,7 @@ def generate_worker_pillar_file():
 
     # 写入其他字段
     cluster_dns = config.get(k8s_section_name, 'cluster-dns')
+    cluster_cidr = config.get(k8s_section_name, 'service-cluster-ip-range')
 
     pod_cidr = config.get(
         k8s_section_name, 'cluster-cidr')
@@ -62,6 +63,8 @@ def generate_worker_pillar_file():
     with open(worker_pillar_filename, 'w') as fdst:
         fdst.write("cluster_dns: '{}'{}".format(
             cluster_dns, os.linesep))
+        fdst.write("cluster_cidr: '{}'{}".format(
+            cluster_cidr, os.linesep))
         fdst.write("pod_cidr: '{}'{}".format(
             pod_cidr, os.linesep))
 

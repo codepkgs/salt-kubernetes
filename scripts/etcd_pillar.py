@@ -11,10 +11,10 @@ def generate_etcd_pillar_file():
     etcd_pillar_filename = 'etcd.sls'
     ca_filename = 'certs/ca.pem'
     peer_ca_filename = 'certs/ca.pem'
-    etcd_filename = 'certs/etcd.pem'
-    etcd_key_filename = 'certs/etcd-key.pem'
-    etcd_peer_filename = 'certs/etcd.pem'
-    etcd_peer_key_filename = 'certs/etcd-key.pem'
+    etcd_filename = 'certs/k8s-master/etcd.pem'
+    etcd_key_filename = 'certs/k8s-master/etcd-key.pem'
+    etcd_peer_filename = 'certs/k8s-master/etcd.pem'
+    etcd_peer_key_filename = 'certs/k8s-master/etcd-key.pem'
 
     etcd_initial_cluster = ''
     config = configparser.ConfigParser()

@@ -1,7 +1,7 @@
 {% set kubelet_dirs = ['pki', 'manifests'] %}
 
 {% for dir in kubelet_dirs %}
-kubelet_dirs:
+kubelet_dirs_{{ dir }}:
   file.directory:
     - name: /etc/kubernetes/{{ dir }}
     - user: root
@@ -21,7 +21,7 @@ kubelet_kubeconfig:
 kubelet_config:
   file.managed:
     - name: /etc/kubernetes/kubelet-config.yaml
-    - source: salt://k8s-worker/files/template/kubelet-config.yaml.j2
+    - source: salt://k8s-worker/templates/kubelet-config.yaml.j2
     - template: jinja
     - user: root
     - group: root
@@ -30,7 +30,7 @@ kubelet_config:
 kubelet_service_config:
   file.managed:
     - name: /usr/lib/systemd/system/kubelet.service
-    - source: salt://k8s-worker/files/templates/kubelet.service.j2
+    - source: salt://k8s-worker/templates/kubelet.service.j2
     - template: jinja
     - user: root
     - group: root

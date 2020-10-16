@@ -1,0 +1,26 @@
+{% set cluster_cidr = salt['pillar.get']('cluster_cidr') %}
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+clientConnection:
+  burst: 200
+  kubeconfig: /etc/kubernetes/kube-proxy.kubeconfig
+  qps: 100
+clusterCIDR: "{{ cluster_cidr }}"
+configSyncPeriod: 15m0s
+enableProfiling: true
+bindAddress: 0.0.0.0
+healthzBindAddress: 0.0.0.0:10256
+metricsBindAddress: 0.0.0.0:10249
+hostnameOverride: "{{ grains['fqdn'] }}"
+mode: "ipvs"
+portRange: ""
+iptables:
+  masqueradeAll: true
+  masqueradeBit: 14
+  minSyncPeriod: 0s
+  syncPeriod: 30s
+ipvs:
+  excludeCIDRs: null
+  minSyncPeriod: 0s
+  scheduler: "rr"
+  syncPeriod: 30s
