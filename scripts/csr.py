@@ -14,7 +14,7 @@ master_section_name = 'k8s-master'
 
 
 ca_csr = {
-    "CN": "Root CA",
+    "CN": "CA",
     "key": {
         "algo": "rsa",
         "size": 2048

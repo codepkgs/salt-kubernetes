@@ -10,11 +10,13 @@
 
 etcd_pkg:
   pkg.installed:
+    - order: 1
     - pkgs:
       - etcd
 
 etcd_data_dir:
   file.directory:
+    - order: 2
     - name: {{ etcd_data_dir }}
     - user: etcd
     - group: etcd
@@ -25,6 +27,7 @@ etcd_data_dir:
 {% if salt['pillar.get'](field, False) %}
 etcd_certs_{{ etcd_field_map[field] }}:
   file.managed:
+    - order: 3
     - name: /etc/etcd/certs/{{ etcd_field_map[field] }}
     - contents_pillar: {{ field }}
     - user: root
@@ -36,6 +39,7 @@ etcd_certs_{{ etcd_field_map[field] }}:
 
 etcd_config:
   file.managed:
+    - order: 4
     - name: /etc/etcd/etcd.conf
     - source: salt://etcd/templates/etcd.conf.j2
     - template: jinja
@@ -52,6 +56,7 @@ etcd_config:
 
 etcd_service:
   service.running:
+    - order: 5
     - name: etcd
     - enable: True
     - require:

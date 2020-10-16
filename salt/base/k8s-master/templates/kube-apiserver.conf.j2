@@ -2,7 +2,6 @@
 {% set etcd_servers = salt['pillar.get']('etcd_servers') %}
 {% set service_cluster_ip_range = salt['pillar.get']('service_cluster_ip_range') %}
 {% set service_node_port_range = salt['pillar.get']('service_node_port_range') %}
-
 KUBE_API_ARGS="--advertise-address={{ advertise_address }} \
                --bind-address=0.0.0.0 \
                --secure-port=6443 \
