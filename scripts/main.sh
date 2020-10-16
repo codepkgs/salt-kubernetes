@@ -3,6 +3,7 @@ set -e
 
 # 定义全局变量
 k8s_master_certs_dir="../salt/base/k8s-master/files/certs"
+k8s_master_kubeconfig_dir="../salt/base/k8s-master/files/kubeconfig"
 vip_address="$(grep '\<vip\>' vars.ini | awk -F'=' '{print $2}' | awk '{print $1}')"
 
 clean() {
@@ -24,11 +25,11 @@ clean() {
     rm -rf files/kube-scheduler-csr.json &> /dev/null
     rm -rf files/k8s-admin-csr.json &> /dev/null
 
+    rm -rf admin.kubeconfig &> /dev/null
+
     # 删除 k8s-master certs 文件
     rm -rf ${k8s_master_certs_dir}/* &> /dev/null
-
-    # 删除 kubeconfig
-    rm -rf ../salt/base/k8s-master/files/kubeconfig/* &> /dev/null
+    rm -rf ${k8s_master_kubeconfig_dir}/* &> /dev/null
 }
 
 init() {
@@ -62,6 +63,11 @@ init() {
         mkdir ${k8s_master_certs_dir}
     fi
     cp -a ./certs/* ../salt/base/k8s-master/files/certs/ 
+
+    # 创建目录
+    if [ ! -d ${k8s_master_kubeconfig_dir} ]; then
+        mkdir ${k8s_master_kubeconfig_dir}
+    fi
 
     # 产生etcd pillar数据
     python etcd_pillar.py && mv etcd.sls ../pillar/base/etcd/sls/
