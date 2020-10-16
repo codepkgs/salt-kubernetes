@@ -65,13 +65,20 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 }
-echo $CLUSTER_CIDR
-# # 执行
-# kubelet_bootstrap_token_apply
-# kubelet_bootstrap_csr_cmd
-# kubelet_bootstrap_csr_approve_cmd
 
-# echo ""
-# echo "waiting 20s ......"
-# echo ""
-# sleep 20 && kubectl --kubeconfig admin.kubeconfig get node
+deploy_flannel() {
+    echo "deploy flannel ......"
+    # 替换flannel 文件
+    sed -i.bak "/Network/s#10.244.0.0/16#${CLUSTER_CIDR}#" files/kube-flannel.yaml
+
+    # 部署flannel
+    kubectl --kubeconfig admin.kubeconfig apply -f files/kube-flannel.yaml
+}
+
+# 执行
+kubelet_bootstrap_token_apply
+kubelet_bootstrap_csr_cmd
+kubelet_bootstrap_csr_approve_cmd
+
+# 部署flannel
+deploy_flannel
