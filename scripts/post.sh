@@ -1,7 +1,7 @@
 TOKEN_PUB="$(grep 'TOKEN_PUB' token.txt | awk -F'=' '{print $2}')"
 TOKEN_SECRET="$(grep 'TOKEN_SECRET' token.txt | awk -F'=' '{print $2}')"
 BOOTSTRAP_TOKEN="$(grep 'BOOTSTRAP_TOKEN' token.txt | awk -F'=' '{print $2}')"
-CLUSTER_CIDR="$(grep 'cluster-cidr' vars.ini | awk -F'=' '{print $2}')"
+CLUSTER_CIDR="$(grep 'pod-cidr' vars.ini | awk -F'=' '{print $2}')"
 
 kubelet_bootstrap_token_apply() {
     echo ""
