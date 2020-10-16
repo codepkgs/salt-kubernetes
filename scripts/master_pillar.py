@@ -24,6 +24,8 @@ def generate_master_pillar_file():
     etcd_initial_cluster = etcd_initial_cluster.rstrip(',')
 
     # 写入其他字段
+    cluster_cidr = config.get(master_section_name, 'cluster-cidr')
+
     service_cluster_ip_range = config.get(
         master_section_name, 'service-cluster-ip-range')
 
@@ -34,6 +36,8 @@ def generate_master_pillar_file():
     with open(master_pillar_filename, 'w') as fdst:
         fdst.write("etcd_servers: '{}'{}".format(
             etcd_initial_cluster, os.linesep))
+        fdst.write("cluster_cidr: '{}'{}".format(
+            cluster_cidr, os.linesep))
         fdst.write("service_cluster_ip_range: '{}'{}".format(
             service_cluster_ip_range, os.linesep))
         fdst.write("service_node_port_range: '{}'{}".format(
