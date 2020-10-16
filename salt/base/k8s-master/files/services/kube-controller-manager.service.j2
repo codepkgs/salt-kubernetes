@@ -1,5 +1,5 @@
 {% set service_cluster_ip_range = salt['pillar.get']('service_cluster_ip_range') %}
-{% set cluster_cidr = salt['pillar.get']('cluster_cidr') %}
+{% set pod_cidr = salt['pillar.get']('pod_cidr') %}
 [Unit]
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
@@ -16,7 +16,7 @@ ExecStart=/usr/bin/kube-controller-manager \
   --secure-port=10257 \
   --port=0 \
   --allocate-node-cidrs=true \
-  --cluster-cidr={{ cluster_cidr }} \
+  --cluster-cidr={{ pod_cidr }} \
   --tls-cert-file=/etc/kubernetes/certs/kube-controller-manager.pem \
   --tls-private-key-file=/etc/kubernetes/certs/kube-controller-manager-key.pem \
   --kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \

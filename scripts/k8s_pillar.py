@@ -24,7 +24,7 @@ def generate_master_pillar_file():
     etcd_initial_cluster = etcd_initial_cluster.rstrip(',')
 
     # 写入其他字段
-    cluster_cidr = config.get(k8s_section_name, 'cluster-cidr')
+    pod_cidr = config.get(k8s_section_name, 'pod-cidr')
 
     service_cluster_ip_range = config.get(
         k8s_section_name, 'service-cluster-ip-range')
@@ -36,8 +36,8 @@ def generate_master_pillar_file():
     with open(master_pillar_filename, 'w') as fdst:
         fdst.write("etcd_servers: '{}'{}".format(
             etcd_initial_cluster, os.linesep))
-        fdst.write("cluster_cidr: '{}'{}".format(
-            cluster_cidr, os.linesep))
+        fdst.write("pod_cidr: '{}'{}".format(
+            pod_cidr, os.linesep))
         fdst.write("service_cluster_ip_range: '{}'{}".format(
             service_cluster_ip_range, os.linesep))
         fdst.write("service_node_port_range: '{}'{}".format(
@@ -54,17 +54,17 @@ def generate_worker_pillar_file():
 
     # 写入其他字段
     cluster_dns = config.get(k8s_section_name, 'cluster-dns')
-    cluster_cidr = config.get(k8s_section_name, 'service-cluster-ip-range')
+    service_cidr = config.get(k8s_section_name, 'service-cluster-ip-range')
 
     pod_cidr = config.get(
-        k8s_section_name, 'cluster-cidr')
+        k8s_section_name, 'pod-cidr')
 
     # 写入文件
     with open(worker_pillar_filename, 'w') as fdst:
         fdst.write("cluster_dns: '{}'{}".format(
             cluster_dns, os.linesep))
-        fdst.write("cluster_cidr: '{}'{}".format(
-            cluster_cidr, os.linesep))
+        fdst.write("service_cidr: '{}'{}".format(
+            service_cidr, os.linesep))
         fdst.write("pod_cidr: '{}'{}".format(
             pod_cidr, os.linesep))
 
