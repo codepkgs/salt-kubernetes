@@ -1,3 +1,7 @@
+#!/bin/bash
+
+# set -e
+
 TOKEN_PUB="$(grep 'TOKEN_PUB' token.txt | awk -F'=' '{print $2}')"
 TOKEN_SECRET="$(grep 'TOKEN_SECRET' token.txt | awk -F'=' '{print $2}')"
 BOOTSTRAP_TOKEN="$(grep 'BOOTSTRAP_TOKEN' token.txt | awk -F'=' '{print $2}')"
@@ -73,6 +77,10 @@ deploy_flannel() {
 
     # 部署flannel
     kubectl --kubeconfig admin.kubeconfig apply -f files/kube-flannel.yaml
+
+    # 删除bak文件
+    sed -i.bak "/Network/s#${CLUSTER_CIDR}#10.244.0.0/16#" files/kube-flannel.yaml
+    rm -rf files/kube-flannel.yaml.bak &> /dev/null
 }
 
 # 执行
