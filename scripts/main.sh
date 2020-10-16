@@ -21,6 +21,8 @@ clean() {
     rm -rf files/apiserver-kubelet-client-csr.json &> /dev/null
     rm -rf files/proxy-client-csr.json &> /dev/null
     rm -rf files/kube-controller-manager-csr.json &> /dev/null
+    rm -rf files/kube-scheduler-csr.json &> /dev/null
+    rm -rf files/k8s-admin-csr.json &> /dev/null
 
     # 删除 k8s-master certs 文件
     rm -rf ${k8s_master_certs_dir}/* &> /dev/null
@@ -41,15 +43,19 @@ init() {
     gen_sa
     apiserver
     controller_manager
+    scheduler
     apiserver_kubelet_client
     proxy_client_metrics_server
     k8s_admin
 
     # kubeconfig
     controller_manager_kubeconfig
+    scheduler_kubeconfig
+    kubeadmin_kubeconfig
 
     # mv kubeconfig
     mv kube-controller-manager.kubeconfig $kubeconfig_dir/
+    mv kube-scheduler.kubeconfig $kubeconfig_dir/
 
     # 复制证书
     if [ ! -d ${k8s_master_certs_dir} ]; then
@@ -114,8 +120,9 @@ gen_cert_aggregator() {
 
 gen_kubeconfig() {
     api_server=$1
-    kubeconfig_filename=$2
-    user=$3
+    cert_name=$2
+    kubeconfig_filename=$3
+    user=$4
 
     # 1. 设置集群参数
     kubectl config set-cluster kubernetes \
@@ -127,8 +134,8 @@ gen_kubeconfig() {
     # 2. 设置客户端认证参数
     kubectl config set-credentials ${user} \
         --embed-certs=true \
-        --client-certificate=./certs/kube-controller-manager.pem \
-        --client-key=./certs/kube-controller-manager-key.pem \
+        --client-certificate=./certs/${cert_name}.pem \
+        --client-key=./certs/${cert_name}-key.pem \
         --kubeconfig=${kubeconfig_filename}
 
     # 3. 设置上下文参数
@@ -216,6 +223,15 @@ controller_manager() {
     gen_cert $cert_name $cert_filename $cert_csr $csr_json
 }
 
+scheduler() {
+    local cert_name='kube-scheduler'
+    local cert_filename='certs/kube-scheduler.pem'
+    local cert_csr='kube-scheduler.csr'
+    local csr_json='kube-scheduler-csr.json'
+
+    gen_cert $cert_name $cert_filename $cert_csr $csr_json
+}
+
 apiserver_kubelet_client() {
     local cert_name='apiserver-kubelet-client'
     local cert_filename='certs/apiserver-kubelet-client.pem'
@@ -245,7 +261,20 @@ k8s_admin() {
 
 controller_manager_kubeconfig() {
     local vip="https://$vip_address:6443"
-    gen_kubeconfig $vip kube-controller-manager.kubeconfig system:kube-controller-manager
+    local cert_name='kube-controller-manager'
+    gen_kubeconfig $vip $cert_name kube-controller-manager.kubeconfig system:kube-controller-manager
+}
+
+scheduler_kubeconfig() {
+    local vip="https://$vip_address:6443"
+    local cert_name='kube-scheduler'
+    gen_kubeconfig $vip $cert_name kube-scheduler.kubeconfig system:kube-scheduler
+}
+
+kubeadmin_kubeconfig() {
+    local vip="https://$vip_address:6443"
+    local cert_name='k8s-admin'
+    gen_kubeconfig $vip $cert_name admin.kubeconfig kubernetes-admin
 }
 
 help() {
