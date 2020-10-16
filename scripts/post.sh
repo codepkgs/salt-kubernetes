@@ -1,6 +1,7 @@
 TOKEN_PUB="$(grep 'TOKEN_PUB' token.txt | awk -F'=' '{print $2}')"
 TOKEN_SECRET="$(grep 'TOKEN_SECRET' token.txt | awk -F'=' '{print $2}')"
 BOOTSTRAP_TOKEN="$(grep 'BOOTSTRAP_TOKEN' token.txt | awk -F'=' '{print $2}')"
+CLUSTER_CIDR="$(grep 'cluster-cidr' vars.ini | awk -F'=' '{print $2}')"
 
 kubelet_bootstrap_token_apply() {
     echo ""
@@ -64,13 +65,13 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 }
+echo $CLUSTER_CIDR
+# # 执行
+# kubelet_bootstrap_token_apply
+# kubelet_bootstrap_csr_cmd
+# kubelet_bootstrap_csr_approve_cmd
 
-# 执行
-kubelet_bootstrap_token_apply
-kubelet_bootstrap_csr_cmd
-kubelet_bootstrap_csr_approve_cmd
-
-echo ""
-echo "waiting 20s ......"
-echo ""
-sleep 20 && kubectl --kubeconfig admin.kubeconfig get node
+# echo ""
+# echo "waiting 20s ......"
+# echo ""
+# sleep 20 && kubectl --kubeconfig admin.kubeconfig get node

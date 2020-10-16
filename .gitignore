@@ -4,11 +4,11 @@ salt/base/k8s-master/files/certs/
 salt/base/k8s-master/files/kubeconfig/
 salt/base/k8s-worker/files/certs/
 salt/base/k8s-worker/files/kubeconfig/
-scripts/files/
 scripts/admin.kubeconfig
 token.txt
-!./scripts/files/config.json
-!./scripts/files/kube-flannel.yaml
+scripts/files
+! scripts/files/config.json
+! scripts/files/kube-flanne.yaml
 pillar/base/etcd/sls/etcd.sls
 pillar/base/k8s-master/sls/k8s-master.sls
 pillar/base/k8s-worker/sls/k8s-worker.sls
