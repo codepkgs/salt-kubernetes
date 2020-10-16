@@ -199,7 +199,7 @@ etcd() {
 }
 
 gen_sa() {
-    local cert_name='service-account'
+    local cert_name='sa'
 
     if [ "$force" == "1" ]; then
         openssl genrsa -out ./certs/${cert_name}.key 2048

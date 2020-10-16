@@ -16,7 +16,7 @@ KUBE_API_ARGS="--advertise-address={{ advertise_address }} \
                --anonymous-auth=false \
                --client-ca-file=/etc/kubernetes/certs/ca.pem \
                --enable-bootstrap-token-auth \
-               --service-account-key-file=/etc/kubernetes/certs/service-account.pub \
+               --service-account-key-file=/etc/kubernetes/certs/sa.pub \
                --authorization-mode=RBAC,Node \
                --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \
                --apiserver-count=3 \
