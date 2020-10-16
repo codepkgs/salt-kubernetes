@@ -57,6 +57,7 @@ init() {
     # mv kubeconfig
     mv kube-controller-manager.kubeconfig $kubeconfig_dir/
     mv kube-scheduler.kubeconfig $kubeconfig_dir/
+    mv admin.kubeconfig $kubeconfig_dir/
 
     # 复制证书
     if [ ! -d ${k8s_master_certs_dir} ]; then
