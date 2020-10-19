@@ -1,5 +1,5 @@
 {% set cni_url = 'https://devops.maka.im/kubernetes/cni' %}
-{% set cni_version = 'cni-plugins-linux-amd64-v0.8.7.tgz' %}
+{% set cni_version = 'cni-plugins-linux-amd64-v0.8.5.tgz' %}
 
 cni_bins:
   archive.extracted:

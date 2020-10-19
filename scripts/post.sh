@@ -101,8 +101,8 @@ kubelet_bootstrap_token_apply
 kubelet_bootstrap_csr_cmd
 kubelet_bootstrap_csr_approve_cmd
 
-# 部署flannel
-deploy_flannel
-
 # 部署 coredns
 deploy_coredns
+
+# 部署flannel
+deploy_flannel
