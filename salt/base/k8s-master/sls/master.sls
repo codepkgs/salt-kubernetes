@@ -33,4 +33,3 @@ master_certs:
     - group: root
     - dir_mode: 755
     - file_mode: 644
-    - clean: True
