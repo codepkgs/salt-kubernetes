@@ -8,8 +8,7 @@ vars_file = 'vars.ini'
 
 ca_section_name = 'ca'
 csr_section_name = 'csr'
-etcd_section_name = 'etcd_cluster'
-k8s_cluster_common_secion_name = 'k8s-cluster-common'
+etcd_section_name = 'etcd-cluster'
 k8s_section_name = 'k8s'
 
 
