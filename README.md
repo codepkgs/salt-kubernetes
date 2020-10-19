@@ -59,6 +59,9 @@
 
   2. 部署 coredns
   ./addons.sh coredns
+
+  3. 部署 metrics-server
+  ./addons.sh metrics-server
   ```
 
 - 其他设置
