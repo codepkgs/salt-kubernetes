@@ -7,7 +7,7 @@ CLUSTER_CIDR="$(grep 'pod-cidr' vars.ini | awk -F'=' '{print $2}')"
 CLUSTER_DNS="$(grep 'cluster-dns' vars.ini | awk -F'=' '{print $2}')"
 
 deploy_flannel() {
-    local addon_dir='files/addons/flannel'
+    local addon_dir='addons/flannel'
 
     echo ""
     echo "deploy flannel ......"
@@ -23,10 +23,11 @@ deploy_flannel() {
 }
 
 deploy_coredns() {
+    local addon_dir='addons/coredns'
     echo ""
     echo "deploy coredns ......"
 
-    /bin/bash coredns/deploy.sh -i $CLUSTER_DNS | $KUBECTL apply -f -
+    /bin/bash ${addon_dir}/deploy.sh -i $CLUSTER_DNS | $KUBECTL apply -f -
 }
 
 help() {
@@ -34,7 +35,7 @@ help() {
     exit 0
 }
 
-case $ops in
+case $1 in
     flannel)
         deploy_flannel
         ;;
