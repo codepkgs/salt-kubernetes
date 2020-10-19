@@ -14,6 +14,7 @@
   5. 参考 master 节点执行的命令。
   6. 参考 worker 节点执行的命令。
   7. 执行 ./post.sh
+  8. 执行 ./addons.sh 部署插件。
   ```
 
 - `master` 节点执行的命令
@@ -46,4 +47,14 @@
 
   ```bash
   salt "worker04.fdisk.cc" state.sls k8s-worker
+  ```
+
+- 部署插件
+
+  ```bash
+  1. 部署 flannel
+  ./addons.sh flannel
+
+  2. 部署 coredns
+  ./addons.sh coredns
   ```
