@@ -95,7 +95,7 @@ init() {
     if [ ! -d ${k8s_worker_certs_dir} ]; then
         mkdir ${k8s_worker_certs_dir}
     fi
-    cp -a ca.pem ./certs/k8s-worker/
+    cp -a ./certs/ca.pem ./certs/k8s-worker/
     cp -a ./certs/k8s-worker/* ../salt/base/k8s-worker/files/certs/
 
     # 创建目录
