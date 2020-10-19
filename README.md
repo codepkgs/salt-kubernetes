@@ -1,6 +1,8 @@
 # 前提
 
-执行 `scripts/main.sh` 脚本的机器要安装 `cfssl` 和 `kubectl`。
+执行 `scripts/main.sh` 脚本的机器要安装 `cfssl`、`cfssljson` 和 `kubectl`。
+
+执行脚本下载 `cfssl` 、`cfssljson` 和 `kubectl`：`./main.sh download`
 
 # 执行步骤
 

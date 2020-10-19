@@ -7,7 +7,49 @@ k8s_worker_certs_dir="../salt/base/k8s-worker/files/certs"
 k8s_master_kubeconfig_dir="../salt/base/k8s-master/files/kubeconfig"
 k8s_worker_kubeconfig_dir="../salt/base/k8s-worker/files/kubeconfig"
 vip_address="$(grep '\<vip\>' vars.ini | awk -F'=' '{print $2}' | awk '{print $1}')"
+version='1.16.9'
 
+
+download() {
+    echo 
+    echo "download ......."
+    local platform=$(uname)
+    echo "platform: $platform"
+    local download_url='https://devops.maka.im/kubernetes'
+    if [ "$platform" == 'Darwin' ]; then
+        if [ ! -d "$HOME/bin" ]; then
+            mkdir ~/bin
+        fi
+
+        if [ ! -f "$HOME/bin/cfssl" ]; then
+            wget $download_url/cfssl/mac/cfssl -O ~/bin/cfssl
+        fi
+
+        if [ ! -f "$HOME/bin/cfssljson" ]; then
+            wget $download_url/cfssl/mac/cfssljson -O ~/bin/cfssljson
+        fi
+
+        if [ ! -f "$HOME/bin/kubectl" ]; then
+            wget $download_url/v${version}/bin/kubectl_mac -O ~/bin/kubectl
+        fi
+
+        chmod +x $HOME/bin/cfssl $HOME/bin/cfssljson $HOME/bin/kubectl
+    elif [ "$platform" == 'Linux' ]; then
+        if [ ! -f "/usr/local/bin/cfssl" ]; then
+            wget $download_url/cfssl/linux/cfssl -O /usr/local/bin/cfssl
+        fi
+
+        if [ ! -f "/usr/local/bin/cfssljson" ]; then
+            wget $download_url/cfssl/linux/cfssljson -O /usr/local/bin/cfssljson
+        fi
+
+        if [ ! -f "/usr/local/bin/kubectl" ]; then
+            wget $download_url/v${version}/bin/kubectl /usr/local/bin/kubectl
+        fi
+
+        chmod +x /usr/local/bin/cfssl /usr/local/bin/cfssljson /usr/local/bin/kubectl
+    fi
+}
 
 clean() {
     # 删除certs目录下的所有内容
@@ -401,7 +443,7 @@ kubelet_bootstrap_kubeconfig() {
 
 help() {
     echo "before use this script, please modify json file in files directory"
-    echo "usage: $0 [--force] init|clean"
+    echo "usage: $0 [--force] {download|init|clean}"
     exit 0
 }
 
@@ -419,6 +461,9 @@ else
 fi
 
 case $ops in
+    download)
+        download
+        ;;
     init)
         init
         ;;
