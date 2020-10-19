@@ -6,18 +6,23 @@ TOKEN_PUB="$(grep 'TOKEN_PUB' token.txt | awk -F'=' '{print $2}')"
 TOKEN_SECRET="$(grep 'TOKEN_SECRET' token.txt | awk -F'=' '{print $2}')"
 BOOTSTRAP_TOKEN="$(grep 'BOOTSTRAP_TOKEN' token.txt | awk -F'=' '{print $2}')"
 CLUSTER_CIDR="$(grep 'pod-cidr' vars.ini | awk -F'=' '{print $2}')"
+CLUSTER_DNS="$(grep 'cluster-dns' vars.ini | awk -F'=' '{print $2}')"
+
+KUBECTL="kubectl --kubeconfig admin.kubeconfig"
 
 kubelet_bootstrap_token_apply() {
     echo ""
     echo "apply kubelet-bootstrap token ......"
-    if [ ! -f "${kubelet_bootstrap_lock}" ]; then
-        kubectl --kubeconfig admin.kubeconfig -n kube-system create secret generic bootstrap-token-${TOKEN_PUB} \
+    if ! $KUBECTL -n kube-system get secret bootstrap-token-${TOKEN_PUB} &> /dev/null; then
+        $KUBECTL -n kube-system create secret generic bootstrap-token-${TOKEN_PUB} \
             --type 'bootstrap.kubernetes.io/token' \
             --from-literal description="kubelet-bootstrap-token" \
             --from-literal token-id=${TOKEN_PUB} \
             --from-literal token-secret=${TOKEN_SECRET} \
             --from-literal usage-bootstrap-authentication=true \
             --from-literal usage-bootstrap-signing=true
+    else
+        echo "apply kubelet-bootstrap token: pass"
     fi
 }
 
@@ -71,16 +76,24 @@ EOF
 }
 
 deploy_flannel() {
+    echo ""
     echo "deploy flannel ......"
     # 替换flannel 文件
     sed -i.bak "/Network/s#10.244.0.0/16#${CLUSTER_CIDR}#" files/kube-flannel.yaml
 
     # 部署flannel
-    kubectl --kubeconfig admin.kubeconfig apply -f files/kube-flannel.yaml
+    $KUBECTL apply -f files/kube-flannel.yaml
 
     # 删除bak文件
     sed -i.bak "/Network/s#${CLUSTER_CIDR}#10.244.0.0/16#" files/kube-flannel.yaml
     rm -rf files/kube-flannel.yaml.bak &> /dev/null
+}
+
+deploy_coredns() {
+    echo ""
+    echo "deploy coredns ......"
+
+    /bin/bash coredns/deploy.sh -i $CLUSTER_DNS | $KUBECTL apply -f -
 }
 
 # 执行
@@ -90,3 +103,6 @@ kubelet_bootstrap_csr_approve_cmd
 
 # 部署flannel
 deploy_flannel
+
+# 部署 coredns
+deploy_coredns
