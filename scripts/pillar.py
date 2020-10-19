@@ -136,9 +136,9 @@ def generate_ha_pillar_file():
     config.read(vars_file)
 
     # 写入其他字段
-    ha_vip = config.get(ha_section_name, 'ha-apiserver-vip')
+    ha_vip = config.get(ha_section_name, 'ha-apiserver-virutal-ip')
     ha_vip_bind_interface = config.get(
-        ha_section_name, 'ha-vip-bind-interface')
+        ha_section_name, 'ha-virutal-ip-bind-interface')
 
     # 写入文件
     with open(ha_pillar_filename, 'w') as fdst:
