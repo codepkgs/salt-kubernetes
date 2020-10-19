@@ -55,6 +55,8 @@ clean() {
     # 删除certs目录下的所有内容
     rm -rf certs/* &> /dev/null
 
+    # 删除 ha pillar 数据
+    rm -rf k8s-ha.sls ../pillar/base/k8s-ha/sls/k8s-ha.sls &> /dev/null
     # 删除 etcd pillar 数据
     rm -rf etcd.sls ../pillar/base/etcd/sls/etcd.sls &> /dev/null
     rm -rf k8s-master.sls ../pillar/base/k8s-master/sls/k8s-master.sls &> /dev/null
@@ -147,10 +149,11 @@ init() {
     if [ ! -d ${k8s_worker_kubeconfig_dir} ]; then
         mkdir ${k8s_worker_kubeconfig_dir}
     fi
-
-    # 产生etcd pillar数据
-    python etcd_pillar.py && mv etcd.sls ../pillar/base/etcd/sls/
-    python k8s_pillar.py
+    
+    # 产生 pillar 数据
+    python pillar.py
+    mv k8s-ha.sls ../pillar/base/k8s-ha/sls/
+    mv etcd.sls ../pillar/base/etcd/sls/
     mv k8s-master.sls ../pillar/base/k8s-master/sls/ &> /dev/null
     mv k8s-worker.sls ../pillar/base/k8s-worker/sls/ &> /dev/null
 
