@@ -11,4 +11,5 @@ scripts/files/*.json
 pillar/base/etcd/sls/etcd.sls
 pillar/base/k8s-master/sls/k8s-master.sls
 pillar/base/k8s-worker/sls/k8s-worker.sls
+pillar/base/k8s-ha/sls/k8s-ha.sls
 scripts/addons/flannel/kube-flannel.yaml.bak
