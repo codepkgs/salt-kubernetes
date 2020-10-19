@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# set -e
+set -e
 
+KUBECTL="kubectl --kubeconfig admin.kubeconfig"
 TOKEN_PUB="$(grep 'TOKEN_PUB' token.txt | awk -F'=' '{print $2}')"
 TOKEN_SECRET="$(grep 'TOKEN_SECRET' token.txt | awk -F'=' '{print $2}')"
 BOOTSTRAP_TOKEN="$(grep 'BOOTSTRAP_TOKEN' token.txt | awk -F'=' '{print $2}')"
-CLUSTER_CIDR="$(grep 'pod-cidr' vars.ini | awk -F'=' '{print $2}')"
-CLUSTER_DNS="$(grep 'cluster-dns' vars.ini | awk -F'=' '{print $2}')"
 
-KUBECTL="kubectl --kubeconfig admin.kubeconfig"
 
 kubelet_bootstrap_token_apply() {
     echo ""
@@ -75,34 +73,7 @@ roleRef:
 EOF
 }
 
-deploy_flannel() {
-    echo ""
-    echo "deploy flannel ......"
-    # 替换flannel 文件
-    sed -i.bak "/Network/s#10.244.0.0/16#${CLUSTER_CIDR}#" files/kube-flannel.yaml
-
-    # 部署flannel
-    $KUBECTL apply -f files/kube-flannel.yaml
-
-    # 删除bak文件
-    sed -i.bak "/Network/s#${CLUSTER_CIDR}#10.244.0.0/16#" files/kube-flannel.yaml
-    rm -rf files/kube-flannel.yaml.bak &> /dev/null
-}
-
-deploy_coredns() {
-    echo ""
-    echo "deploy coredns ......"
-
-    /bin/bash coredns/deploy.sh -i $CLUSTER_DNS | $KUBECTL apply -f -
-}
-
 # 执行
 kubelet_bootstrap_token_apply
 kubelet_bootstrap_csr_cmd
 kubelet_bootstrap_csr_approve_cmd
-
-# 部署 coredns
-deploy_coredns
-
-# 部署flannel
-deploy_flannel
