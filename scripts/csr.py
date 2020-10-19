@@ -210,6 +210,29 @@ def generate_apiserver_csr_config():
     write_csr_file(proxy_client_csr_filename, csr)
 
 
+def generate_proxyclient_csr_config():
+    proxy_client_csr_filename = 'files/proxy-client-csr.json'
+
+    config, csr = generate_csr_names_field(proxy_client_csr)
+
+    # 写入hosts字段
+    for option in config.options(k8s_section_name):
+        if option.startswith('master_host'):
+            host = config.get(k8s_section_name, option)
+            csr['hosts'].append(host)
+
+    # hosts 字段增加 vip和service-cluster-ip-range 的第一个IP
+    vip = config.get(k8s_section_name, 'vip')
+    svc_ip_range = config.get(
+        k8s_section_name, 'service-cluster-ip-range')
+    svc_first_ip = '.'.join(svc_ip_range.split('/')[0].split('.')[:3]) + '.1'
+
+    csr['hosts'].append(vip)
+    csr['hosts'].append(svc_first_ip)
+    print(csr)
+    write_csr_file(proxy_client_csr_filename, csr)
+
+
 def generate_apiserver_kubelet_client_csr_config():
     apiserver_kubelet_client_csr_filename = 'files/apiserver-kubelet-client-csr.json'
 
@@ -274,6 +297,7 @@ if __name__ == "__main__":
     generate_apiserver_csr_config()
     generate_apiserver_kubelet_client_csr_config()
     generate_k8s_admin_csr_config()
+    generate_proxyclient_csr_config()
     generate_controller_manager_csr_config()
     generate_scheduler_csr_config()
     generate_kubeproxy_csr_config()
