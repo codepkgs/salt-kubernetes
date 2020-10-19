@@ -33,6 +33,14 @@ deploy_coredns() {
     /bin/bash ${addon_dir}/deploy.sh -i $CLUSTER_DNS | $KUBECTL apply -f -
 }
 
+deploy_metrics_server() {
+    local addon_dir='addons/metrics-server'
+    echo
+    echo "deploy metrics-server ......"
+
+    $KUBECTL apply -f ${addon_dir}/
+}
+
 taint_master() {
     $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER01}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
     $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER02}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
@@ -46,7 +54,12 @@ master_label() {
 }
 
 help() {
-    echo "usage: $0 {flannel|coredns|taint_master|master_label}"
+    echo "usage: $0 {flannel|coredns|metrics-server|taint-master|master-label}"
+    echo -e "\t$0 flannel\t\t:部署 flannel"
+    echo -e "\t$0 coredns\t\t:部署 coredns"
+    echo -e "\t$0 metrics-server\t:部署 metrics-server"
+    echo -e "\t$0 taint-master\t:给 master 节点设置污点"
+    echo -e "\t$0 master-label\t:给 master 节点设置 label，打上 master 标签"
     exit 0
 }
 
@@ -57,10 +70,13 @@ case $1 in
     coredns)
         deploy_coredns
         ;;
-    taint_master)
+    metrics-server)
+        deploy_metrics_server
+        ;;
+    taint-master)
         taint_master
         ;;
-    master_label)
+    master-label)
         master_label
         ;;
     *)
