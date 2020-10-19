@@ -30,8 +30,7 @@ deploy_coredns() {
 }
 
 help() {
-    echo "before use this script, please modify json file in files directory"
-    echo "usage: $0 flannel | coredns"
+    echo "usage: $0 {flannel|coredns}"
     exit 0
 }
 
