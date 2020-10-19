@@ -442,7 +442,6 @@ kubelet_bootstrap_kubeconfig() {
 }
 
 help() {
-    echo "before use this script, please modify json file in files directory"
     echo "usage: $0 [--force] {download|init|clean}"
     exit 0
 }
