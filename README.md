@@ -37,7 +37,13 @@
   ```bash
   # 1. salt worker 节点执行 k8s-worker
   # 示例
-  salt "master01.fdisk.cc" state.sls k8s-worker
-  salt "master02.fdisk.cc" state.sls k8s-worker
-  salt "master03.fdisk.cc" state.sls k8s-worker
+  salt "worker01.fdisk.cc" state.sls k8s-worker
+  salt "worker02.fdisk.cc" state.sls k8s-worker
+  salt "worker03.fdisk.cc" state.sls k8s-worker
+  ```
+
+- 加入 `worker` 节点
+
+  ```bash
+  salt "worker04.fdisk.cc" state.sls k8s-worker
   ```
