@@ -228,7 +228,6 @@ def generate_proxyclient_csr_config():
 
     csr['hosts'].append(vip)
     csr['hosts'].append(svc_first_ip)
-    print(csr)
     write_csr_file(proxy_client_csr_filename, csr)
 
 
