@@ -129,7 +129,7 @@ def generate_worker_pillar_file():
 
 def generate_ha_pillar_file():
     ha_pillar_filename = 'k8s-ha.sls'
-
+    k8s_section_name = 'k8s'
     ha_section_name = 'k8s-ha'
 
     config = configparser.ConfigParser()
@@ -140,10 +140,17 @@ def generate_ha_pillar_file():
     ha_vip_bind_interface = config.get(
         ha_section_name, 'ha-virutal-ip-bind-interface')
 
+    # 获取 master_host，写入 pillar数据，供nginx stream 使用
+    master_hosts = []
+    for option in config.options(k8s_section_name):
+        if option.startswith('master_host'):
+            host = config.get(k8s_section_name, option)
+            master_hosts.append(host)
+
     # 写入文件
     with open(ha_pillar_filename, 'w') as fdst:
-        fdst.write("k8s_ha_apiserver_vip: '{}'{}".format(
-            ha_vip, os.linesep))
+        fdst.write("master_hosts: {}{}".format(master_hosts, os.linesep))
+        fdst.write("k8s_ha_apiserver_vip: '{}'{}".format(ha_vip, os.linesep))
         fdst.write("k8s_ha_vip_bind_interface: '{}'{}".format(
             ha_vip_bind_interface, os.linesep))
 

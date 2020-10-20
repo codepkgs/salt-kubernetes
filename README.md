@@ -15,10 +15,20 @@
   2. 进入到 scripts 目录，先执行 ./main.sh clean，然后执行 ./main.sh init
   3. 所有K8S节点初始化。salt "*" state.apply
   4. 重启所有的K8S节点。
-  5. 参考 master 节点执行的命令。
-  6. 参考 worker 节点执行的命令。
-  7. 执行 ./post.sh
-  8. 执行 ./addons.sh 部署插件。
+  5. kube-apiserver HA 部署，会在节点上安装 keepalived和nginx。
+  6. 参考 master 节点执行的命令。
+  7. 参考 worker 节点执行的命令。
+  8. 执行 ./post.sh
+  9. 执行 ./addons.sh 部署插件。
+  ```
+
+- `kube-apiserver` 高可用部署
+
+  ```bash
+  # 需要安装keepalvied和nginx的节点执行如下操作，可在单台机器部署也可在多台机器部署，必须和kube-apiserver节点分开。
+  # 默认监听的地址是 6443 端口，不要修改。
+  salt "vm09.fdisk.cc" state.sls k8s-ha
+  salt "vm10.fdisk.cc" state.sls k8s-ha
   ```
 
 - `master` 节点执行的命令
