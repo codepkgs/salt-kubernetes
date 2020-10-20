@@ -1,5 +1,7 @@
 # 前提
 
+**注意：在使用前，需要修改 scripts/vars.ini，并修改字段的内容，所有字段的值不要使用引号**
+
 执行 `scripts/main.sh` 脚本的机器要安装 `cfssl`、`cfssljson` 和 `kubectl`。
 
 执行脚本下载 `cfssl` 、`cfssljson` 和 `kubectl`：`./main.sh download`
