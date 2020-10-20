@@ -5,9 +5,7 @@ set -e
 KUBECTL="kubectl --kubeconfig admin.kubeconfig"
 CLUSTER_CIDR="$(grep 'pod-cidr' vars.ini | awk -F'=' '{print $2}')"
 CLUSTER_DNS="$(grep 'cluster-dns' vars.ini | awk -F'=' '{print $2}')"
-MASTER01="$(grep 'master_host1' vars.ini | awk -F'=' '{print $2}')"
-MASTER02="$(grep 'master_host2' vars.ini | awk -F'=' '{print $2}')"
-MASTER03="$(grep 'master_host3' vars.ini | awk -F'=' '{print $2}')"
+MASTER_COUNTS="$(grep 'master_counts' vars.ini | awk -F'=' '{print $2}')"
 
 deploy_flannel() {
     local addon_dir='addons/flannel'
@@ -42,15 +40,19 @@ deploy_metrics_server() {
 }
 
 taint_master() {
-    $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER01}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
-    $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER02}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
-    $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER03}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
+    for i in `seq 1 ${MASTER_COUNTS}`
+    do
+        local MASTER=$(grep "master_host$i" vars.ini | awk -F'=' '{print $2}')
+        $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
+    done
 }
 
 master_label() {
-    $KUBECTL label node `$KUBECTL get node -o wide | grep "${MASTER01}" | awk '{print $1}'` node-role.kubernetes.io/master=""
-    $KUBECTL label node `$KUBECTL get node -o wide | grep "${MASTER02}" | awk '{print $1}'` node-role.kubernetes.io/master=""
-    $KUBECTL label node `$KUBECTL get node -o wide | grep "${MASTER03}" | awk '{print $1}'` node-role.kubernetes.io/master=""
+    for i in `seq 1 ${MASTER_COUNTS}`
+    do
+        local MASTER=$(grep "master_host$i" vars.ini | awk -F'=' '{print $2}')
+        $KUBECTL label node `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master=""
+    done
 }
 
 help() {
