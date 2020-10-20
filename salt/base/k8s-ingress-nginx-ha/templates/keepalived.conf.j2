@@ -1,0 +1,23 @@
+! Configuration File for keepalived
+
+global_defs {
+    router_id {{ grains['host'] }}
+    lvs_flush
+
+    # dont add any iptables rule
+    vrrp_iptables
+
+    # check
+    vrrp_check_unicast_src
+    vrrp_skip_check_adv_addr
+
+    # process priority
+    vrrp_priority -10
+    checker_priority -10
+
+    # process non swappable
+    vrrp_no_swap
+    checker_no_swap
+}
+
+include /etc/keepalived/keepalived.d/*.conf

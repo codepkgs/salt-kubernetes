@@ -56,7 +56,8 @@ clean() {
     rm -rf certs/* &> /dev/null
 
     # 删除 ha pillar 数据
-    rm -rf k8s-ha.sls ../pillar/base/k8s-ha/sls/k8s-ha.sls &> /dev/null
+    rm -rf k8s-apiserver-ha.sls ../pillar/base/k8s-ha/sls/k8s-apiserver-ha.sls &> /dev/null
+    rm -rf k8s-ingress-nginx.sls ../pillar/base/k8s-ingress-nginx-ha/sls/k8s-ingress-nginx.sls &> /dev/null
     # 删除 etcd pillar 数据
     rm -rf etcd.sls ../pillar/base/etcd/sls/etcd.sls &> /dev/null
     rm -rf k8s-master.sls ../pillar/base/k8s-master/sls/k8s-master.sls &> /dev/null
@@ -152,7 +153,8 @@ init() {
     
     # 产生 pillar 数据
     python pillar.py
-    mv k8s-ha.sls ../pillar/base/k8s-ha/sls/
+    mv k8s-apiserver-ha.sls ../pillar/base/k8s-apiserver-ha/sls/
+    mv k8s-ingress-nginx.sls ../pillar/base/k8s-ingress-nginx-ha/sls/
     mv etcd.sls ../pillar/base/etcd/sls/
     mv k8s-master.sls ../pillar/base/k8s-master/sls/ &> /dev/null
     mv k8s-worker.sls ../pillar/base/k8s-worker/sls/ &> /dev/null

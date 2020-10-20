@@ -17,4 +17,6 @@ events {
 }
 
 # include extra stream config
-include /etc/nginx/stream.d/*.conf;
+stream {
+    include /etc/nginx/stream.d/*.conf;
+}

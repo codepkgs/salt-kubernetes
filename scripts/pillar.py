@@ -128,9 +128,9 @@ def generate_worker_pillar_file():
 
 
 def generate_apiserver_ha_pillar_file():
-    ha_pillar_filename = 'k8s-ha.sls'
+    ha_pillar_filename = 'k8s-apiserver-ha.sls'
     k8s_section_name = 'k8s'
-    k8s_ha_section_name = 'k8s-ha'
+    k8s_ha_section_name = 'k8s-apiserver-ha'
 
     config = configparser.ConfigParser()
     config.read(vars_file)
@@ -159,8 +159,39 @@ def generate_apiserver_ha_pillar_file():
             ha_vip_bind_interface, os.linesep))
 
 
+def generate_ingress_nginx_ha_pillar_file():
+    ingress_nginx_pillar_filename = 'k8s-ingress-nginx.sls'
+    k8s_ingress_nginx_section_name = 'k8s-ingress-nginx'
+
+    config = configparser.ConfigParser()
+    config.read(vars_file)
+
+    # 写入其他字段
+    ingress_nginx_hosts = config.get(
+        k8s_ingress_nginx_section_name, 'ingress-nginx-hosts').split(',')
+    ingress_nginx_virutal_ip = config.get(k8s_ingress_nginx_section_name,
+                                          'ingress-nginx-virutal-ip')
+    ingress_nginx_virutal_ip_bind_interface = config.get(
+        k8s_ingress_nginx_section_name, 'ingress-nginx-virutal-ip-bind-interface')
+    ingress_keepalived_virtual_router_id = config.get(
+        k8s_ingress_nginx_section_name, 'ingress-keepalived-virtual-router-id')
+
+    # 写入文件
+    with open(ingress_nginx_pillar_filename, 'w') as fdst:
+
+        fdst.write("ingress_nginx_hosts: {}{}".format(
+            ingress_nginx_hosts, os.linesep))
+        fdst.write("ingress_nginx_virutal_ip: '{}'{}".format(
+            ingress_nginx_virutal_ip, os.linesep))
+        fdst.write("ingress_nginx_virutal_ip_bind_interface: '{}'{}".format(
+            ingress_nginx_virutal_ip_bind_interface, os.linesep))
+        fdst.write("ingress_keepalived_virtual_router_id: {}{}".format(
+            ingress_keepalived_virtual_router_id, os.linesep))
+
+
 if __name__ == "__main__":
-    generate_etcd_pillar_file()
-    generate_master_pillar_file()
-    generate_worker_pillar_file()
+    # generate_etcd_pillar_file()
+    # generate_master_pillar_file()
+    # generate_worker_pillar_file()
     generate_apiserver_ha_pillar_file()
+    generate_ingress_nginx_ha_pillar_file()

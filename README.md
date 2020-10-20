@@ -24,11 +24,13 @@
 
 - `kube-apiserver` 高可用部署
 
+  注意：先执行该步骤，在执行 `etcd` 和 `k8s-master` 等任务。
+
   ```bash
   # 需要安装keepalvied和nginx的节点执行如下操作，可在单台机器部署也可在多台机器部署，必须和kube-apiserver节点分开。
   # 默认监听的地址是 6443 端口，不要修改。
-  salt "vm09.fdisk.cc" state.sls k8s-ha
-  salt "vm10.fdisk.cc" state.sls k8s-ha
+  salt "vm09.fdisk.cc" state.sls k8s-apiserver-ha
+  salt "vm10.fdisk.cc" state.sls k8s-apiserver-ha
   ```
 
 - `master` 节点执行的命令
@@ -78,6 +80,18 @@
   4. 部署 ingress-nginx
   ./addon.sh ingress-nginx
   ./addon.sh ingress-label <node_name>  # 给节点设置ingress的标签，否则ingress-nginx-controller的容器无法创建。
+  ```
+
+- `ingress-nginx` 高可用部署
+
+  注意：先执行该步骤，在执行 `etcd` 和 `k8s-master` 等任务。
+
+  ```bash
+  # 需要安装keepalvied和nginx的节点执行如下操作，可在单台机器部署也可在多台机器部署，必须和kube-apiserver节点分开。
+  # 可以和 kube-apiserver 高可用使用同一台机器
+  # 默认监听的地址是 80和443 端口，不要修改。
+  salt "vm09.fdisk.cc" state.sls k8s-ingress-nginx-ha
+  salt "vm10.fdisk.cc" state.sls k8s-ingress-nginx-ha
   ```
 
 - 其他设置

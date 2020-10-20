@@ -1,0 +1,26 @@
+{% set ingress_nginx_virutal_ip = salt['pillar.get']('ingress_nginx_virutal_ip') %}
+{% set ingress_nginx_virutal_ip_bind_interface = salt['pillar.get']('ingress_nginx_virutal_ip_bind_interface') %}
+{% set ingress_keepalived_virtual_router_id = salt['pillar.get']('ingress_keepalived_virtual_router_id') %}
+vrrp_instance ingress-nginx {
+    state BACKUP
+    interface {{ ingress_nginx_virutal_ip_bind_interface }}
+
+    nopreempt
+
+    track_interface {
+        {{ ingress_nginx_virutal_ip_bind_interface }} weight 1
+    }
+
+    virtual_router_id {{ ingress_keepalived_virtual_router_id }}
+    priority 10
+    advert_int 1
+
+    authentication {
+        auth_type PASS
+        auth_pass INGRESS
+    }
+
+    virtual_ipaddress {
+        {{ ingress_nginx_virutal_ip }}
+    }
+}
