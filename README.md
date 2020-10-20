@@ -74,6 +74,10 @@
 
   3. 部署 metrics-server
   ./addons.sh metrics-server
+
+  4. 部署 ingress-nginx
+  ./addon.sh ingress-nginx
+  ./addon.sh ingress-label <node_name>  # 给节点设置ingress的标签，否则ingress-nginx-controller的容器无法创建。
   ```
 
 - 其他设置
@@ -84,4 +88,7 @@
 
   2. 给 master 节点设置 label
   ./addons.sh master-lable
+
+  3. 取消节点的 ingress 标签
+  ./addons.sh undo-ingress-label
   ```
