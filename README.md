@@ -92,3 +92,9 @@
   3. 取消节点的 ingress 标签
   ./addons.sh undo-ingress-label
   ```
+
+- 其他功能
+
+  ```bash
+  ./addons.sh -h
+  ```
