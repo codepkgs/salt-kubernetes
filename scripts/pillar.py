@@ -190,8 +190,8 @@ def generate_ingress_nginx_ha_pillar_file():
 
 
 if __name__ == "__main__":
-    # generate_etcd_pillar_file()
-    # generate_master_pillar_file()
-    # generate_worker_pillar_file()
+    generate_etcd_pillar_file()
+    generate_master_pillar_file()
+    generate_worker_pillar_file()
     generate_apiserver_ha_pillar_file()
     generate_ingress_nginx_ha_pillar_file()
