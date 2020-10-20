@@ -1,5 +1,3 @@
-{% set k8s_ha_apiserver_vip = salt['pillar.get']('k8s_ha_apiserver_vip') %}
-{% set k8s_ha_vip_bind_interface = salt['pillar.get']('k8s_ha_vip_bind_interface') %}
 ! Configuration File for keepalived
 
 global_defs {
@@ -22,36 +20,4 @@ global_defs {
     checker_no_swap
 }
 
-vrrp_script check_nginx {
-    script "/etc/keepalived/chk_nginx.sh"
-    interval 3
-    weight 1
-}
-
-vrrp_instance apiserver-vip {
-    state BACKUP
-    interface {{ k8s_ha_vip_bind_interface }}
-
-    nopreempt
-
-    track_interface {
-        {{ k8s_ha_vip_bind_interface }} weight 1
-    }
-
-    virtual_router_id 1
-    priority 10
-    advert_int 1
-
-    authentication {
-        auth_type PASS
-        auth_pass APISERVER
-    }
-
-    virtual_ipaddress {
-        {{ k8s_ha_apiserver_vip }}
-    }
-
-    track_script {
-        check_nginx
-    }
-}
+include /etc/keepalived/keepalived.d/*.conf
