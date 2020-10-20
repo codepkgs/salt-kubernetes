@@ -80,8 +80,8 @@
 
   ```bash
   1. 给 master 节点设置污点
-  ./addons.sh taint_master
+  ./addons.sh taint-master
 
   2. 给 master 节点设置 label
-  ./addons.sh master_lable
+  ./addons.sh master-lable
   ```

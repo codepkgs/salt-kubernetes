@@ -44,7 +44,7 @@ download() {
         fi
 
         if [ ! -f "/usr/local/bin/kubectl" ]; then
-            wget $download_url/v${version}/bin/kubectl /usr/local/bin/kubectl
+            wget $download_url/v${version}/bin/kubectl -O /usr/local/bin/kubectl
         fi
 
         chmod +x /usr/local/bin/cfssl /usr/local/bin/cfssljson /usr/local/bin/kubectl
