@@ -51,18 +51,28 @@ deploy_ingress_nginx() {
 }
 
 taint_master() {
+    local ops=$1
     for i in `seq 1 ${MASTER_COUNTS}`
     do
         local MASTER=$(grep "master_host$i" vars.ini | awk -F'=' '{print $2}')
-        $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
+        if [ "$ops" == 'do' ]; then
+            $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master="":NoSchedule
+        elif [ "$ops" == 'undo' ]; then
+            $KUBECTL taint nodes `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master-
+        fi
     done
 }
 
 master_label() {
+    local ops=$1
     for i in `seq 1 ${MASTER_COUNTS}`
     do
         local MASTER=$(grep "master_host$i" vars.ini | awk -F'=' '{print $2}')
-        $KUBECTL label node `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master=""
+        if [ "$ops" == 'do' ]; then
+            $KUBECTL label node `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master=""
+        elif [ "$ops" == 'undo' ]; then
+            $KUBECTL label node `$KUBECTL get node -o wide | grep "${MASTER}" | awk '{print $1}'` node-role.kubernetes.io/master-
+        fi
     done
 }
 
@@ -90,8 +100,13 @@ help() {
     echo -e "\t$0 coredns\t\t\t\t:部署 coredns"
     echo -e "\t$0 metrics-server\t\t\t:部署 metrics-server"
     echo -e "\t$0 ingress-nginx\t\t\t:部署 ingress-nginx"
+    echo
     echo -e "\t$0 taint-master\t\t\t:给 master 节点设置污点"
+    echo -e "\t$0 undo-taint-master\t\t\t:取消 master 节点的污点设置"
+    echo
     echo -e "\t$0 master-label\t\t\t:给 master 节点设置 label，打上 master 标签"
+    echo -e "\t$0 undo-master-label\t\t\t:删除给 master 节点设置的 master label"
+    echo
     echo -e "\t$0 ingress-label <node_name>\t\t:给节点设置 ingress:true 的标签，否则 ingress-nginx-controller 无法创建"
     echo -e "\t$0 undo-ingress-label <node_name>\t:删除节点的 ingress:true 的标签，会删除 ingress-nginx-controller 容器"
     exit 0
@@ -117,10 +132,16 @@ case $1 in
         ingress_label undo $2
         ;;
     taint-master)
-        taint_master
+        taint_master do
+        ;;
+    undo-taint-master)
+        taint_master undo
         ;;
     master-label)
-        master_label
+        master_label do
+        ;;
+    undo-master-label)
+        master_label undo
         ;;
     *)
         help
