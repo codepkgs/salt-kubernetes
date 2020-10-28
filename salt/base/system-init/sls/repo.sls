@@ -1,3 +1,4 @@
+{% if 'alibaba' not in grains['productname'].lower() %}
 {% if grains['os_family'].lower() == 'redhat' %}
 system_init_repo_epel:
   file.managed:
@@ -16,4 +17,5 @@ system_init_repo_centos:
     - user: root
     - group: root
     - mode: 0644
+{% endif %}
 {% endif %}
