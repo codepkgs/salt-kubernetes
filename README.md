@@ -1,3 +1,7 @@
+# 使用 `ansible` 安装 `salt master` 和 `salt minion`
+
+[ansible 安装 salt-master 和 salt-minion](https://github.com/x-hezhang/ansible-saltstack)
+
 # 前提
 
 **注意：在使用前，需要修改 scripts/vars.ini，并修改字段的内容，所有字段的值不要使用引号**
@@ -11,7 +15,7 @@
 - 执行步骤
 
   ```text
-  1. 将所有代码复制到 salt master 上。以下命令均在 salt master 上执行。
+  1. 将所有代码复制到 salt master 的 `file_roots` 目录下，如 `/srv/salt`。以下命令均在 salt master 上执行。
   2. 进入到 scripts 目录，先执行 ./main.sh clean，然后执行 ./main.sh init
   3. 所有K8S节点初始化。salt "*" state.apply
   4. 重启所有的K8S节点。
