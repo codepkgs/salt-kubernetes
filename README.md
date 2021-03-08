@@ -4,3 +4,4 @@
 
 
 [v1.16.9](https://github.com/x-hezhang/salt-kubernetes/tree/v1.16.9)
+[v1.20.4](https://github.com/x-hezhang/salt-kubernetes/tree/v1.20.4)
