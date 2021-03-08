@@ -102,6 +102,14 @@ init() {
         mkdir -p certs/k8s-worker
     fi
 
+    if [ ! -d "$master_kubeconfig_dir" ]; then
+        mkdir -p $master_kubeconfig_dir
+    fi
+
+    if [ ! -d "$worker_kubeconfig_dir" ]; then
+        mkdir -p $worker_kubeconfig_dir
+    fi
+
     # 产生csr文件
     python csr.py
 
@@ -124,9 +132,9 @@ init() {
     kubeadmin_kubeconfig
 
     # mv kubeconfig
-    mv kube-controller-manager.kubeconfig $master_kubeconfig_dir/
-    mv kube-scheduler.kubeconfig $master_kubeconfig_dir/
-    cp admin.kubeconfig $master_kubeconfig_dir/
+    mv kube-controller-manager.kubeconfig $master_kubeconfig_dir
+    mv kube-scheduler.kubeconfig $master_kubeconfig_dir
+    cp admin.kubeconfig $master_kubeconfig_dir
 
     # 复制证书
     if [ ! -d ${k8s_master_certs_dir} ]; then
