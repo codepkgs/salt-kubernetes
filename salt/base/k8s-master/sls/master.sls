@@ -1,4 +1,4 @@
-{% set k8s_pkg_url = 'https://devops.maka.im/kubernetes/v1.16.9/bin' %}
+{% set k8s_pkg_url = 'https://devops.maka.im/kubernetes/v1.20.4/bin' %}
 {% set master_pkgs = ['kube-apiserver', 'kube-controller-manager', 'kube-scheduler', 'kubelet', 'kube-proxy', 'kubeadm', 'kubectl'] %}
 {% set dirs = ['/etc/kubernetes/certs', '/var/log/kubernetes'] %}
 
