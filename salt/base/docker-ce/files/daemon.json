@@ -1,5 +1,7 @@
 {
     "registry-mirrors": [
-        "https://pecvdg5b.mirror.aliyuncs.com"
+        "https://pecvdg5b.mirror.aliyuncs.com",
+        "https://mirror.baidubce.com",
+        "https://hub-mirror.c.163.com"
     ]
 }
