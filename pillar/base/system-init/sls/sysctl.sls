@@ -41,7 +41,7 @@ sysctl_configs:
     value: 0
   - key: net.ipv4.conf.default.arp_announce
     value: 2
-  - key: net.ipv4.conf.default.arp_announce
+  - key: net.ipv4.conf.lo.arp_announce
     value: 2
   - key: net.ipv4.conf.all.arp_announce
     value: 2
