@@ -7,7 +7,7 @@ k8s_worker_certs_dir="../salt/base/k8s-worker/files/certs"
 k8s_master_kubeconfig_dir="../salt/base/k8s-master/files/kubeconfig"
 k8s_worker_kubeconfig_dir="../salt/base/k8s-worker/files/kubeconfig"
 vip_address="$(grep '\<vip\>' vars.ini | awk -F'=' '{print $2}' | awk '{print $1}')"
-version='1.16.9'
+version='1.20.4'
 
 
 download() {
@@ -111,7 +111,7 @@ init() {
     fi
 
     # 产生csr文件
-    python csr.py
+    python3 csr.py
 
     # 产生证书
     ca
@@ -160,7 +160,7 @@ init() {
     fi
     
     # 产生 pillar 数据
-    python pillar.py
+    python3 pillar.py
     mkdir -p ../pillar/base/k8s-apiserver-ha/sls/ ../pillar/base/k8s-ingress-nginx-ha/sls/ &> /dev/null
     mkdir -p ../pillar/base/etcd/sls/ ../pillar/base/k8s-master/sls/ ../pillar/base/k8s-worker/sls/ &> /dev/null
 
