@@ -23,3 +23,5 @@ sysctl_configs:
     value: 1
   - key: net.ipv4.tcp_keepalive_time
     value: 30
+  - key: vm.swappiness
+    value: 0
