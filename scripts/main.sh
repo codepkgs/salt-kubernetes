@@ -161,6 +161,9 @@ init() {
     
     # 产生 pillar 数据
     python pillar.py
+    mkdir -p ../pillar/base/k8s-apiserver-ha/sls/ ../pillar/base/k8s-ingress-nginx-ha/sls/ &> /dev/null
+    mkdir -p ../pillar/base/etcd/sls/ ../pillar/base/k8s-master/sls/ ../pillar/base/k8s-worker/sls/ &> /dev/null
+
     mv k8s-apiserver-ha.sls ../pillar/base/k8s-apiserver-ha/sls/
     mv k8s-ingress-nginx.sls ../pillar/base/k8s-ingress-nginx-ha/sls/
     mv etcd.sls ../pillar/base/etcd/sls/
